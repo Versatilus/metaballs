@@ -1,5 +1,3 @@
-var bubbleDimensions = [];
-
 function Bubble(id, x, y, radius, coloration, alpha) {
   this.id = id >= 0 ? ~~id : ~~random(65536, 16776216);
   _radius = radius ? radius : random(maxRadius);
@@ -8,8 +6,6 @@ function Bubble(id, x, y, radius, coloration, alpha) {
   _center = [_x, _y];
   this.color = coloration ? coloration.slice() : [255, 255, 255];
   this.alpha = alpha ? alpha : 127;
-
-
   this.startColor = this.color.slice();
   this.bounces = 0;
   this.maxBounces = 0;
@@ -27,7 +23,6 @@ function Bubble(id, x, y, radius, coloration, alpha) {
   this.hasPopped = 0;
   bubbleDimensions[id] = [_center[0], _center[1], _radius, _xspeed, _yspeed, _elasticity];
 }
-
 Bubble.prototype.shareColor = function(other) {
   const radii = (this.radius + other.radius) / 2;
   const thisWeight = this.radius / radii;
@@ -39,7 +34,6 @@ Bubble.prototype.shareColor = function(other) {
   }
   this.color = tmpColor.slice();
 };
-
 Bubble.prototype.move = function(others) {
   if (this.x - this.radius <= 0) {
     this.growing = 0.25;
@@ -73,7 +67,6 @@ Bubble.prototype.move = function(others) {
     //this.burst = 0.25;
     this.pop(0.075);
   }
-
   /*for (let i = 0; i < this.neighbors.length; i++) {
     if (this.radius / this.neighbors[i].radius > 2 || this.neighbors[i].radius / this.radius > 2 || this === this.neighbors[i]) continue;
     //if (this === this.neighbors[i]) continue; //this.radius / this.neighbors[i].radius > 2 || this.neighbors[i].radius / this.radius > 2 || this === this.neighbors[i]) continue;
@@ -111,7 +104,6 @@ Bubble.prototype.move = function(others) {
   this.center = [this.x + this.xspeed, this.y + this.yspeed];
   //this.history.push(createVector(this.x, this.y));
 }
-
 Bubble.prototype.collision = function(other) {
   return;
   if (this.radius / other.radius > 2 || other.radius / this.radius > 2 || this === other) return;
@@ -129,29 +121,22 @@ Bubble.prototype.collision = function(other) {
     const otherWeight = (other.radius);
     const weightRatio = myWeight / otherWeight;
     const distanceFactor = 0.25;
-
     var myCosTheta = xDistance / distance;
     var mySinTheta = yDistance / distance;
-
     var thisVector = this.momentum;
     var otherVector = other.momentum;
-
     //var thisRelative = acos(1);
-
     var bounceForce = (thisVector[1] * this.elasticity * weightRatio + otherVector[1] * other.elasticity / weightRatio);
     var thisXBounce = cos(thisVector[0] + Math.PI) * bounceForce;
     var thisYBounce = sin(thisVector[0] + Math.PI) * bounceForce;
     var otherXBounce = cos(otherVector[0] + Math.PI) * bounceForce;
     var otherYBounce = sin(otherVector[0] + Math.PI) * bounceForce;
-
     var xSum = (this.xspeed * weightRatio + other.xspeed / weightRatio); // this.xspeed + other.xspeed; //
     var ySum = (this.yspeed * weightRatio + other.yspeed / weightRatio); // this.yspeed + other.yspeed; //
     /*var myXSum = weightRatio * this.xspeed - other.xspeed/weightRatio;
     var myYSum = weightRatio * (this.yspeed - other.yspeed);
     var otherXSum = (this.xspeed - other.xspeed) / weightRatio;
     var otherYSum = (this.yspeed - other.yspeed) / weightRatio;*/
-
-
     this.xspeed = thisXBounce + xSum * random(0.975, 1.025) * distanceFactor;
     this.yspeed = thisYBounce + ySum * random(0.975, 1.025) * distanceFactor;
     other.xspeed = otherXBounce + xSum * random(0.975, 1.025) * distanceFactor;
@@ -160,9 +145,7 @@ Bubble.prototype.collision = function(other) {
     this.bounces++;
     other.bounces++;
   }
-
 }
-
 /*this.bounce = function(otherBubble) {
   var temp = [];
   for (var i = 0; i < 3; i++) {
@@ -170,15 +153,12 @@ Bubble.prototype.collision = function(other) {
   }
   this.alpha = (this.alpha + otherBubble.alpha) / 2;
 };*/
-
-
 Bubble.prototype.display = function() {
   stroke((this.color));
   //fill(this.color, this.alpha);
   noFill();
   ellipse(this.x, this.y, this.radius, this.radius);
 }
-
 Bubble.prototype.teleport = function() {
   //updateGrid();
   const br = this.radius + 1;
@@ -208,7 +188,6 @@ Bubble.prototype.teleport = function() {
   this.center = [bx, by];
   return 1;
 };
-
 Bubble.prototype.pop = function(intensity) {
   this.history = [];
   /*const concentrated = concentrateColor(this.color);
@@ -223,7 +202,6 @@ Bubble.prototype.pop = function(intensity) {
   //this.color = invertColor(this.color);
   return this.teleport();
 }
-
 Object.defineProperties(Bubble.prototype, {
   'x': {
     get: function() {

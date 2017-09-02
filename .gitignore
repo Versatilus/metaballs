@@ -1,0 +1,9 @@
+# Ignore junk
+.idea/
+hidden/
+.hidden/
+log.txt
+*.log
+*.*\#
+*.*~
+

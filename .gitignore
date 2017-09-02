@@ -6,4 +6,6 @@ log.txt
 *.log
 *.*\#
 *.*~
-
+.tern*
+.projectile
+.eslint*

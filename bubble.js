@@ -1,28 +1,29 @@
 function Bubble(id, x, y, radius, coloration, alpha) {
-  this.id = id >= 0 ? ~~id : ~~random(65536, 16776216);
-  _radius = radius ? radius : random(maxRadius);
-  _x = x ? x : random(virtualWidth);
-  _y = y ? y : random(virtualHeight);
-  _center = [_x, _y];
-  this.color = coloration ? coloration.slice() : [255, 255, 255];
-  this.alpha = alpha ? alpha : 127;
-  this.startColor = this.color.slice();
-  this.bounces = 0;
-  this.maxBounces = 0;
-  this.minBounces = 0;
-  this.lastCollision = 0;
-  _elasticity = random(0.51, 0.650);
-  this._neighbors = [];
-  this.burst = 0;
-  this.growing = 0;
-  this.topSpeed = topSpeed * random(0.9, 1.1);
-  this.history = [createVector(x, y)];
-  _xspeed = random(-this.topSpeed / 3, this.topSpeed / 3);
-  _yspeed = random(-this.topSpeed / 3, this.topSpeed / 3);
-  this.farthestNeighbor = 0;
-  this.hasPopped = 0;
-  bubbleDimensions[id] = [_center[0], _center[1], _radius, _xspeed, _yspeed, _elasticity];
+    this.id = id >= 0 ? ~~id : ~~random(65536, 16776216);
+    _radius = radius ? radius : random(maxRadius);
+    _x = x ? x : random(virtualWidth);
+    _y = y ? y : random(virtualHeight);
+    _center = [_x, _y];
+    this.color = coloration ? coloration.slice() : [255, 255, 255];
+    this.alpha = alpha ? alpha : 127;
+    this.startColor = this.color.slice();
+    this.bounces = 0;
+    this.maxBounces = 0;
+    this.minBounces = 0;
+    this.lastCollision = 0;
+    _elasticity = random(0.51, 0.650);
+    this._neighbors = [];
+    this.burst = 0;
+    this.growing = 0;
+    this.topSpeed = topSpeed * random(0.9, 1.1);
+    this.history = [createVector(x, y)];
+    _xspeed = random(-this.topSpeed / 3, this.topSpeed / 3);
+    _yspeed = random(-this.topSpeed / 3, this.topSpeed / 3);
+    this.farthestNeighbor = 0;
+    this.hasPopped = 0;
+    bubbleDimensions[id] = [_center[0], _center[1], _radius, _xspeed, _yspeed, _elasticity];
 }
+
 Bubble.prototype.shareColor = function(other) {
   const radii = (this.radius + other.radius) / 2;
   const thisWeight = this.radius / radii;

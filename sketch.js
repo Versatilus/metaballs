@@ -39,7 +39,8 @@ var blobGridXFactor;
 var blobGridYFactor;
 var blobGridXScale = 2.25;
 var blobGridYScale = 2.25;
-var buf, buf8, colormap;
+
+//var buf8, colormap;
 var averageRadius = (maxRadius + minRadius) / 2,
   maxDistance = 1 / (Math.sqrt(virtualWidth ** 2 + virtualHeight ** 2) + 1),
   minColor = averageRadius * maxDistance * bubbles.length;
@@ -115,21 +116,45 @@ function setup() {
   simulationInterval = setInterval(simulateTimeStep, mpf);
   console.log("20170822_114438");
   calculateBlobGrid();
-  blobInterval = setInterval(metaball, mpf * 2);
+    blobInterval = setInterval(metaball, mpf * 2);
 }
 
 function draw() {
-  image(img, 0, 0, virtualWidth, virtualHeight, 0, 0, blobGridX, blobGridY);
-  /*for (var i = 0; i < bubbles.length; i++) {
-    bubbles[i].display();
-    }*/
+    image(img, 0, 0, virtualWidth, virtualHeight, 0, 0, blobGridX, blobGridY);
+    /*for (var i = 0; i < bubbles.length; i++) {
+      bubbles[i].display();
+      }*/
     avefr = (59*avefr+1*frameRate())/60;
     stroke(0);
     strokeWeight(3);
     fill(255);
     textSize(20);
     text(""+round(avefr*5)/5, 30,height-30);
-  lastFrameTime = window.performance.now();
+    lastFrameTime = window.performance.now();
+}
+
+function updatePixel(x,y, colorValue){
+    colormap[x+y*width] += colorValue;
+} 
+
+function findBubbleColor(bubble, x, y){
+    let XDistance = bubble[0] - x;
+    let YDistance = bubble[1] - y;
+    let r = bubble[2];
+    let pixelColor = 0.325 * r / Math.max((Math.abs(XDistance) + Math.abs(
+        YDistance)),0.5);
+    pixelColor += 1.55 * r / (Math.max(Math.sqrt(
+        Math.pow(XDistance, 2) + Math.pow(YDistance, 2))-r*0.25, 0.75));
+    return pixelColor;
+}
+
+function colorPixel(x,y){
+    let pixelColor = 0;
+    let i = bubbles.length;
+    while (i--) {
+	pixelColor += findBubbleColor(bubbleDimensions[bubbles[i].id], x, y);
+    }
+    return pixelColor;
 }
 
 function metaball() {
@@ -137,11 +162,10 @@ function metaball() {
     currentColorMax = 0;
     var i, x, y, index, scaledX, scaledY, idx;
   img.loadPixels();
-  buf = new ArrayBuffer(img.pixels.length);
-  buf8 = new Uint8ClampedArray(buf);
-  colormap = new Uint32Array(buf);
-  var maxDistance = 1 / (sqrt(virtualWidth ** 2 + virtualHeight ** 2) * 0.5 +
-    1);
+  var  buf = new ArrayBuffer(img.pixels.length);
+  var buf8 = new Uint8ClampedArray(buf);
+  var colormap = new Uint32Array(buf);
+  var maxDistance = 1 / (sqrt(virtualWidth ** 2 + virtualHeight ** 2) * 0.5 + 1);
   averageRadius = 0;
   for (i = 0; i < bubbles.length; ++i) averageRadius += bubbles[i].radius;
   averageRadius = (averageRadius / bubbles.length + minRadius) * 0.5;
@@ -189,7 +213,7 @@ function windowResized() {
   console.log(virtualWidth + " x " + virtualHeight);
   virtualWidth = width;
   virtualHeight = height;
-  updateGrid();
+   updateGrid();
   calculateBlobGrid();
   let before = (bubbles.length);
   for (let i = 0; i < bubbles.length; i++) {
@@ -239,93 +263,91 @@ function windowResized() {
 
 function simulateTimeStep() {
     avefr = (50*avefr+10*frameRate())/60;
-  for (let i = 0; i < bubbles.length; i++) {
-    /*neighborhood = getNeighborhoodFromGrid(bubbles[i].x, bubbles[i].y);
-    for (let j = 0; j < neighborhood.length; j++) {
-      bubbles[i].collision(neighborhood[j]);
-    }*/
-      bubbles[i].move();
-    if (bubbles[i].burst) {
-      bubbles[i].history = [];
-      const intensity = bubbles[i].burst;
-      bubbles[i].burst = 0;
-      const concentrated = concentrateColor(bubbles[i].color);
-      flashNeighborhood(bubbles[i].x, bubbles[i].y, (concentrated)); // [255, 255, 255]);
-      for (let j = 0; j < bubbles[i].neighbors.length; j++) {
-        if (bubbles[i] === bubbles[i].neighbors[i]) continue;
-        bubbles[i].neighbors[j].color = interpolateColors(concentrated,
-          bubbles[i].neighbors[j].color, intensity);
-      }
-      //bubbles[i].color = invertColor(bubbles[i].color);
-      bubbles[i].teleport();
+    for (let i = 0; i < bubbles.length; i++) {
+	/*neighborhood = getNeighborhoodFromGrid(bubbles[i].x, bubbles[i].y);
+	  for (let j = 0; j < neighborhood.length; j++) {
+	  bubbles[i].collision(neighborhood[j]);
+	  }*/
+	bubbles[i].move();
+	if (bubbles[i].burst) {
+	    bubbles[i].history = [];
+	    const intensity = bubbles[i].burst;
+	    bubbles[i].burst = 0;
+	    const concentrated = concentrateColor(bubbles[i].color);
+	    flashNeighborhood(bubbles[i].x, bubbles[i].y, (concentrated)); // [255, 255, 255]);
+	    for (let j = 0; j < bubbles[i].neighbors.length; j++) {
+		if (bubbles[i] === bubbles[i].neighbors[i]) continue;
+		bubbles[i].neighbors[j].color = interpolateColors(concentrated,
+								  bubbles[i].neighbors[j].color, intensity);
+	    }
+	    //bubbles[i].color = invertColor(bubbles[i].color);
+	    bubbles[i].teleport();
+	}
     }
-  }
-  if (laserBeams) {
-    var neighbors = getNeighborhoodFromGrid(mouseX, mouseY);
-    var targets = [];
-    var children = [];
-    neighbors.forEach(function (bubble) {
-      if (targets.indexOf(bubble) === -1) {
-        targets.push(bubble)
-      }
-    });
-    targets.forEach(function (bubble) {
-      bubble.neighbors.forEach(function (child) {
-        if (targets.indexOf(child) === -1 && children.indexOf(
-            child) ===
-          -1) {
-          children.push(child);
-        }
-      })
-    });
-    targets.forEach(function (bubble) {
-      bubble.color = [255, 0, 255];
-      bubble.pop(1);
-    });
-    children.forEach(function (bubble) {
-      bubble.color = [0, 255, 255];
-      bubble.pop(0.25);
-    });
-    if (neighbors.length) flashNeighborhood(mouseX, mouseY, [255, 255,
-      255
-    ]);
-  }
+    if (laserBeams) {
+	var neighbors = getNeighborhoodFromGrid(mouseX, mouseY);
+	var targets = [];
+	var children = [];
+	neighbors.forEach(function (bubble) {
+	    if (targets.indexOf(bubble) === -1) {
+		targets.push(bubble)
+	    }
+	});
+	targets.forEach(function (bubble) {
+	    bubble.neighbors.forEach(function (child) {
+		if (targets.indexOf(child) === -1 && children.indexOf(
+		    child) ===
+		    -1) {
+		    children.push(child);
+		}
+	    });
+	});
+	targets.forEach(function (bubble) {
+	    bubble.color = [255, 0, 255];
+	    bubble.pop(1);
+	});
+	children.forEach(function (bubble) {
+	    bubble.color = [0, 255, 255];
+	    bubble.pop(0.25);
+	});
+	if (neighbors.length) flashNeighborhood(mouseX, mouseY, [255, 255, 255]);
+    }
 }
 
 function performanceReport() {
     avefr = (50*avefr+10*frameRate())/60;
-  //ts = window.performance.now();
-  //ilt = window.performance.now() - ts;
-  while (recentFrameRates.length > fps * 10) {
-    recentFrameRates.shift();
-    //innerLoopTimes.shift();
-  }
-  recentFrameRates.push(frameRate());
-  //innerLoopTimes.push(ilt);
-  if (window.performance.now() - reportTime > 10000) {
-    let iltSum = 0,
-      iltVariance = 0,
-      tmpSum = 0,
-      tmpVariance = 0;
-    for (let i = 0; i < recentFrameRates.length; i++) {
-      tmpSum += recentFrameRates[i];
-    //  iltSum += innerLoopTimes[i];
+    //ts = window.performance.now();
+    //ilt = window.performance.now() - ts;
+    while (recentFrameRates.length > fps * 10) {
+	recentFrameRates.shift();
+	//innerLoopTimes.shift();
     }
-    let avefrt = tmpSum / recentFrameRates.length;
-  //  aveilt = iltSum / innerLoopTimes.length;
-    averageFrameRate = (3 * averageFrameRate + avefrt) / 4;
-    for (let i = 0; i < recentFrameRates.length; i++) {
-      tmpVariance += ((avefrt - recentFrameRates[i]) ** 2);
-//      iltVariance += ((aveilt - innerLoopTimes[i]) ** 2);
+    recentFrameRates.push(frameRate());
+    //innerLoopTimes.push(ilt);
+    if (window.performance.now() - reportTime > 10000) {
+	let iltSum = 0,
+	    iltVariance = 0,
+	    tmpSum = 0,
+	    tmpVariance = 0;
+	for (let i = 0; i < recentFrameRates.length; i++) {
+	    tmpSum += recentFrameRates[i];
+	    //  iltSum += innerLoopTimes[i];
+	}
+	let avefrt = tmpSum / recentFrameRates.length;
+	//  aveilt = iltSum / innerLoopTimes.length;
+	averageFrameRate = (3 * averageFrameRate + avefrt) / 4;
+	for (let i = 0; i < recentFrameRates.length; i++) {
+	    tmpVariance += ((avefrt - recentFrameRates[i]) ** 2);
+	    //      iltVariance += ((aveilt - innerLoopTimes[i]) ** 2);
+	}
+	console.log("++++Frame Rates++++\n10 second average:\n" + avefrt +
+		    "\nstandard deviation:\n" + (sqrt(tmpVariance / recentFrameRates
+						      .length)) +
+		    "\nrunning average:\n" + averageFrameRate);
+	//console.log("++++Inner Loop Times++++\n10 second average:\n" + aveilt +
+	//"\nstandard deviation:\n" + (sqrt(iltVariance / innerLoopTimes.length))); // + "\nrunning average:\n" + averageFrameRate);
+	reportTime = window.performance.now();
     }
-    console.log("++++Frame Rates++++\n10 second average:\n" + avefrt +
-      "\nstandard deviation:\n" + (sqrt(tmpVariance / recentFrameRates
-        .length)) +
-      "\nrunning average:\n" + averageFrameRate);
-    //console.log("++++Inner Loop Times++++\n10 second average:\n" + aveilt +
-    //"\nstandard deviation:\n" + (sqrt(iltVariance / innerLoopTimes.length))); // + "\nrunning average:\n" + averageFrameRate);
-    reportTime = window.performance.now();
-  }
 }
 
 function mousePressed() {

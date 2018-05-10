@@ -83,7 +83,28 @@ function hslToRgb32(h, s, l, a) {
     g = hue2rgb(p, q, h);
     b = hue2rgb(p, q, h - 1 / 3);
   }
-  return ((r == g == b == 0 ? 0xFF : a) << 24) | ((b * 255) << 16) | ((g * 255) <<
+  return (a << 24) | ((b * 255) << 16) | ((g * 255) <<
     8) | (r * 255);
 }
-// simulating=0;clearInterval(simulationInterval); while(drawingFlag){} noLoop(); var benchmarkStart=window.performance.now(); for(var ii=0;ii<fps*60;ii++) simulateTimeStep(); console.log(window.performance.now()-benchmarkStart); loop();
+
+function hToRgb32(h) {
+  h = Math.abs(h) % 2;
+  if (h>1) h =2-h;
+  var r, g, b;
+
+  r = hue2rgb(h+1/3);
+  g = hue2rgb(h);
+  b = hue2rgb(h-1/3);
+  
+  return (0xFF << 24) | ((b * 255) << 16) | ((g * 255) <<
+    8) | (r * 255);
+    
+  function hue2rgb(t) {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return 6 * t;
+    if (t < 1 / 2) return 1;
+    if (t < 2 / 3) return 4 - 6*t
+    return 0;
+  }
+}

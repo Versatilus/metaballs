@@ -86,3 +86,64 @@ mw.postMessage({
   return colormap;
 }
 */
+
+
+function makeGrid(w,h){
+  let g = new Float32Array(w*h*2);
+  for (var i = 0; i < h; i++) {
+    for (var j = 0; j < w; j++) {
+      g[2*i*w+2*j]=j;
+      g[2*i*w+2*j+1]=i;
+    }
+  }
+  return g;
+}
+
+function makeScreenTensor(w,h){
+  let g = new Float32Array(w*h*2);
+  for (var i = 0; i < h; i++) {
+    for (var j = 0; j < w; j++) {
+      g[2*i*w+2*j]=j;
+      g[2*i*w+2*j+1]=i;
+    }
+  }
+  return tf.tensor(g,[h,w,2]);
+}
+
+  function mapBubbles(bubbleList){
+    return tf.tidy(_=>{
+      let total = tf.variable(tf.zeros([h,w]));
+      for (let i = 0, end = bubbleList.length;i<end;i++){
+        total.assign(total.add((tf.sqrt(tf.sum(tf.squaredDifference(originalMap,
+          tf.tensor1d([bubbleList[i][0],bubbleList[i][1]])),2)).reciprocal())));
+      }
+      return tf.tanh(total).dataSync();
+    });
+  }
+  
+function helloWorld() {
+  tf.sqrt(tf.sum(s.squaredDifference(tf.tensor1d([3,2])),2)).print();
+  
+};
+
+function minmax(x){
+  let minimum = Infinity;
+  let maximum = -Infinity;
+  for (let i=0,end=x.length;i<end;i++){
+    minimum = Math.min(x[i],minimum);
+    maximum = Math.max(x[i],maximum);
+  }
+  return {minimum, maximum};
+ }
+
+  function buildMap(w,h,bubbleList){
+    let originalMap = tf.tensor(makeGrid(w,h),[h,w,2]);
+    return tf.tidy(_=>{
+      let total = tf.variable(tf.zeros([h,w]));
+      for (let i = 0, end = bubbleList.length;i<end;i++){
+        total.assign(total.add((tf.sqrt(tf.sum(tf.squaredDifference(originalMap,
+          tf.tensor1d([bubbleList[i][0],bubbleList[i][1]])),2)).reciprocal())));
+      }
+      return tf.tanh(total).dataSync();
+    });
+  }

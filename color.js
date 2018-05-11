@@ -108,3 +108,35 @@ function hToRgb32(h) {
     return 0;
   }
 }
+
+function TensorFlowHueToRgb32(h) {
+  let trimmed = tf.clipByValue(h, 0, 1);
+  
+  var r_in, g_in, b_in;
+  r_in = trimmed.add(tf.scalar(1/3));
+  b_in = trimmed.sub(tf.scalar(1/3));
+  g_in = trimmed;
+  
+  let ltzMask = tf.less(b_in, tf.scalar(0));
+  let gtzMask = tf.greater(r_in, tf.scalar(1));
+
+  // Create the red channel
+  
+
+  
+  r = hue2rgb(h+1/3);
+  g = hue2rgb(h);
+  b = hue2rgb(h-1/3);
+  
+  return (0xFF << 24) | ((b * 255) << 16) | ((g * 255) <<
+    8) | (r * 255);
+    
+  function hue2rgb(t) {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return 6 * t;
+    if (t < 1 / 2) return 1;
+    if (t < 2 / 3) return 4 - 6*t
+    return 0;
+  }
+}

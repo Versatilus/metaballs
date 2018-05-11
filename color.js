@@ -1,32 +1,5 @@
-function invertColor(color) {
-  var tmp = [];
-  for (var i = 0; i < color.length; i++) tmp[i] = color[i] ^ 0xFF;
-  return tmp;
-}
+// Sadly, I don't remember I found this code. The math can be found on Wikipedia.
 
-function interpolateColors(c1, c2, weight = 0.5) {
-  var cc = [];
-  otherWeight = (2 - 2 * weight);
-  for (var i = 0; i < c1.length; i++) cc[i] = sqrt((weight * 2 * Math.pow(c1[i],
-    2) + otherWeight * Math.pow(c2[i], 2)) / 2);
-  return cc;
-}
-
-function concentrateColor(color) {
-  /*var tmp = [];
-  for (var i = 0; i < color.length; i++)
-    tmp[i] = (color[i] & 0xC0) >> ? 0xFF : 0;
-  return tmp;*/
-  if (color.length === 3) {
-    r = color[0];
-    g = color[1];
-    b = color[2];
-    r = (b <= r && r >= g) ? 255 : 0;
-    g = (r <= g && g >= b) ? 255 : 0;
-    b = (r <= b && b >= g) ? 255 : 0;
-    return [r, g, b]; //[255, 255, 255];
-  }
-}
 /**
  * Converts an HSL color value to RGB. Conversion formula
  * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
@@ -59,7 +32,7 @@ function hslToRgb(h, s, l) {
     g = hue2rgb(p, q, h);
     b = hue2rgb(p, q, h - 1 / 3);
   }
-  return [r * 255, g * 255, b * 255]; // new Uint8ClampedArray([r * 255, g * 255, b * 255]);
+  return [r * 255, g * 255, b * 255];
 }
 
 function hslToRgb32(h, s, l, a) {
@@ -89,15 +62,14 @@ function hslToRgb32(h, s, l, a) {
 
 function hToRgb32(h) {
   h = Math.abs(h) % 2;
-  if (h>1) h =2-h;
+  if (h > 1) h = 2 - h;
   var r, g, b;
 
-  r = hue2rgb(h+1/3);
+  r = hue2rgb(h + 1/3);
   g = hue2rgb(h);
-  b = hue2rgb(h-1/3);
+  b = hue2rgb(h - 1/3);
   
-  return (0xFF << 24) | ((b * 255) << 16) | ((g * 255) <<
-    8) | (r * 255);
+  return (0xFF << 24) | ((b * 255) << 16) | ((g * 255) << 8) | (r * 255);
     
   function hue2rgb(t) {
     if (t < 0) t += 1;

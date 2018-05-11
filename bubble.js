@@ -19,9 +19,9 @@ Bubble.prototype.move = function(others) {
   let r= this.radius;
   let xspeed = this.xspeed;
   let yspeed = this.yspeed;
-  if (x - r <= 0 || x + r >= virtualWidth)
+  if (x + r <= 0 || x - r >= virtualWidth)
     xspeed *= -randomGaussian(1,.1);
-  if (y - r <= 0 || y + r >= virtualHeight)
+  if (y + r <= 0 || y - r >= virtualHeight)
     yspeed *= -randomGaussian(1,.1);
   this.center = [x + xspeed, y + yspeed];
   this.xspeed = xspeed;
@@ -34,7 +34,7 @@ Object.defineProperties(Bubble.prototype, {
       return bubbleDimensions[this.id][0];
     },
     set: function(xval) {
-        bubbleDimensions[this.id][0] = constrain(xval, 0 + this.radius, virtualWidth - this.radius);
+        bubbleDimensions[this.id][0] = constrain(xval, 0 - this.radius, virtualWidth + this.radius);
     }
   },
   'y': {
@@ -42,7 +42,7 @@ Object.defineProperties(Bubble.prototype, {
       return bubbleDimensions[this.id][1];
     },
     set: function(yval) {
-        bubbleDimensions[this.id][1] = constrain(yval, 0 + this.radius, virtualHeight - this.radius);
+        bubbleDimensions[this.id][1] = constrain(yval, 0 - this.radius, virtualHeight + this.radius);
     }
   },
   'center': {
@@ -50,8 +50,8 @@ Object.defineProperties(Bubble.prototype, {
       return bubbleDimensions[this.id].slice(0, 2);
     },
     set: function(xyval) {
-        bubbleDimensions[this.id][0] = constrain(xyval[0], 0 + this.radius, virtualWidth - this.radius);
-        bubbleDimensions[this.id][1] = constrain(xyval[1], 0 + this.radius, virtualHeight - this.radius);
+        bubbleDimensions[this.id][0] = constrain(xyval[0], 0 - this.radius, virtualWidth + this.radius);
+        bubbleDimensions[this.id][1] = constrain(xyval[1], 0 - this.radius, virtualHeight + this.radius);
     }
   },
   'xspeed': {
@@ -59,7 +59,7 @@ Object.defineProperties(Bubble.prototype, {
       return bubbleDimensions[this.id][3];
     },
     set: function(x) {
-      bubbleDimensions[this.id][3] = x>= 0?1:-1*constrain(abs(x), .2*this.topSpeed, this.topSpeed);
+      bubbleDimensions[this.id][3] = (x>= 0?1:-1)*constrain(abs(x), .2*this.topSpeed, this.topSpeed);
     }
   },
   'yspeed': {
@@ -67,7 +67,7 @@ Object.defineProperties(Bubble.prototype, {
       return bubbleDimensions[this.id][4];
     },
     set: function(x) {
-      bubbleDimensions[this.id][4] = constrain(x, -this.topSpeed, this.topSpeed);
+      bubbleDimensions[this.id][4] = (x>= 0?1:-1)*constrain(abs(x), .2*this.topSpeed, this.topSpeed);
     }
   },
   'radius': {
